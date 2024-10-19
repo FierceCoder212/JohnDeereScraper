@@ -48,6 +48,7 @@ class JohnDeereScraper:
 
     def _create_records(self, parts_response: GetPartsResponseModel, sgl_codes: list[str]) -> list[dict]:
         records = []
+        section_diagram_added = False
         for code in sgl_codes:
             image_filename = self._sanitize_filename(f'{code}-{parts_response.name}.jpg')
             for part in parts_response.partItems:
@@ -59,8 +60,9 @@ class JohnDeereScraper:
                     description=part.partDescription,
                     itemNumber=part.sortCalloutLabel,
                     sectonDiagram=image_filename,
-                    sectonDiagramUrl=f'data:image/PNG;base64,{parts_response.image}',
+                    sectonDiagramUrl=f'data:image/PNG;base64,{parts_response.image}' if not section_diagram_added else '',
                     scraperName=self.scraper_name).model_dump())
+                section_diagram_added = True
         return records
 
     @staticmethod
