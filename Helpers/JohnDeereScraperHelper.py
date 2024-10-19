@@ -1,3 +1,5 @@
+import random
+import time
 from typing import Optional
 
 import requests
@@ -64,11 +66,10 @@ class JohnDeereScraperHelper:
             "sec-ch-ua-platform": '"Windows"'
         }
         _proxy = 'http://info0PA2B:4nXTtWDQJW@161.77.66.8:49155'
-        self._proxies = {'http': _proxy, 'https': _proxy}
 
     def get_search_results(self, pc_model: str) -> list[SearchResult]:
         self._search_url_params['q'] = pc_model
-        response = requests.get(self._search_url, headers=self._headers, params=self._search_url_params, proxies=self._proxies)
+        response = requests.get(self._search_url, headers=self._headers, params=self._search_url_params)
         if response.status_code == 200:
             return SearchResultsResponseModel(**response.json()).searchResults
         return []
@@ -78,7 +79,7 @@ class JohnDeereScraperHelper:
         self._get_children_body['ln'] = level_index
         self._get_children_body['sp'] = serialized_path
         self._get_children_body['fr']['equipmentRefId'] = ref_id
-        response = requests.post(self._get_children_url, headers=self._headers, json=self._get_children_body, proxies=self._proxies)
+        response = requests.post(self._get_children_url, headers=self._headers, json=self._get_children_body)
         if response.status_code == 200:
             return GetChildrenResponseModel(**response.json()).navItems
         return []
@@ -87,9 +88,14 @@ class JohnDeereScraperHelper:
         self._get_parts_body['eqID'] = ref_id
         self._get_parts_body['fr']['equipmentRefId'] = ref_id
         self._get_parts_body['pgID'] = page_id
-        response = requests.post(self._get_parts_url, headers=self._headers, json=self._get_parts_body, proxies=self._proxies)
+        response = requests.post(self._get_parts_url, headers=self._headers, json=self._get_parts_body)
         if response.status_code == 200:
             return GetPartsResponseModel(**response.json())
+        elif response.status_code == 401:
+            random_wait = random.randint(4, 6)
+            print(f'Response was 401. Waiting for {random_wait}sec.')
+            time.sleep(random_wait)
+            return self.get_parts_response(ref_id=ref_id, page_id=page_id)
         else:
             print(f'Error parts response : {response.status_code}, {response.text}')
         return None
