@@ -63,7 +63,7 @@ class JohnDeereScraper:
                         id=0,
                         sglUniqueModelCode=code,
                         section=item.name,
-                        partNumber=part.partNumber,
+                        partNumber=part.partNumber if part.partNumber else '',
                         description=part.partDescription,
                         itemNumber=part.sortCalloutLabel,
                         sectonDiagram=image_filename,
