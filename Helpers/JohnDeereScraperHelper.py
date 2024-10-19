@@ -88,4 +88,6 @@ class JohnDeereScraperHelper:
         response = requests.post(self._get_parts_url, headers=self._headers, json=self._get_parts_body)
         if response.status_code == 200:
             return GetPartsResponseModel(**response.json())
+        else:
+            print(f'Error parts response : {response.status_code}, {response.text}')
         return None
