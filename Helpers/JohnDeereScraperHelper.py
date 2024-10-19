@@ -1,4 +1,3 @@
-import random
 import time
 from typing import Optional
 
@@ -65,16 +64,19 @@ class JohnDeereScraperHelper:
             "sec-ch-ua-mobile": "?0",
             "sec-ch-ua-platform": '"Windows"'
         }
-        _proxy = 'http://info0PA2B:4nXTtWDQJW@161.77.66.8:49155'
 
-    def get_search_results(self, pc_model: str) -> list[SearchResult]:
+    def get_search_results(self, pc_model: str, wait_count: int = 1) -> list[SearchResult]:
         self._search_url_params['q'] = pc_model
         response = requests.get(self._search_url, headers=self._headers, params=self._search_url_params)
         if response.status_code == 200:
             return SearchResultsResponseModel(**response.json()).searchResults
-        return []
+        else:
+            print(f'Error search response : {response.status_code}, {response.text}')
+            print(f'Waiting for {wait_count}sec.')
+            time.sleep(wait_count)
+            return self.get_search_results(pc_model=pc_model, wait_count=wait_count + 1)
 
-    def get_children_response(self, ref_id: str, level_index: int = 1, serialized_path: str = '') -> list[NavItem]:
+    def get_children_response(self, ref_id: str, level_index: int = 1, serialized_path: str = '', wait_count: int = 1) -> list[NavItem]:
         self._get_children_body['eq'] = ref_id
         self._get_children_body['ln'] = level_index
         self._get_children_body['sp'] = serialized_path
@@ -82,20 +84,21 @@ class JohnDeereScraperHelper:
         response = requests.post(self._get_children_url, headers=self._headers, json=self._get_children_body)
         if response.status_code == 200:
             return GetChildrenResponseModel(**response.json()).navItems
-        return []
+        else:
+            print(f'Error children response : {response.status_code}, {response.text}')
+            print(f'Waiting for {wait_count}sec.')
+            time.sleep(wait_count)
+            return self.get_children_response(ref_id=ref_id, level_index=level_index, serialized_path=serialized_path, wait_count=wait_count + 1)
 
-    def get_parts_response(self, ref_id: str, page_id: str) -> Optional[GetPartsResponseModel]:
+    def get_parts_response(self, ref_id: str, page_id: str, wait_count: int = 1) -> Optional[GetPartsResponseModel]:
         self._get_parts_body['eqID'] = ref_id
         self._get_parts_body['fr']['equipmentRefId'] = ref_id
         self._get_parts_body['pgID'] = page_id
         response = requests.post(self._get_parts_url, headers=self._headers, json=self._get_parts_body)
         if response.status_code == 200:
             return GetPartsResponseModel(**response.json())
-        elif response.status_code == 401:
-            random_wait = random.randint(4, 6)
-            print(f'Response was 401. Waiting for {random_wait}sec.')
-            time.sleep(random_wait)
-            return self.get_parts_response(ref_id=ref_id, page_id=page_id)
         else:
             print(f'Error parts response : {response.status_code}, {response.text}')
-        return None
+            print(f'Waiting for {wait_count}sec.')
+            time.sleep(wait_count)
+            return self.get_parts_response(ref_id=ref_id, page_id=page_id, wait_count=wait_count + 1)
