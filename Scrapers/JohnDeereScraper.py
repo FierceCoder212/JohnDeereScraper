@@ -38,8 +38,12 @@ class JohnDeereScraper:
                 parts_response = self._scraper_helper.get_parts_response(ref_id=ref_id, page_id=item.id)
                 if parts_response:
                     curr_parts.append(parts_response)
+                    print(f'Parts scraped : {len(parts_response.partItems)}')
+                else:
+                    print('Error : No parts found')
             else:
                 nav_items = self._scraper_helper.get_children_response(ref_id, level_index=item.levelIndex, serialized_path=item.serializedPath)
+                print(f'Nav Items scraped : {len(nav_items)}')
                 parts = self._get_parts(ref_id=ref_id, nav_items=nav_items)
                 curr_parts.extend(parts)
         return curr_parts
