@@ -3,7 +3,7 @@ from typing import Optional
 import requests
 
 from Models.GetChildrenResponseModel import GetChildrenResponseModel, NavItem
-from Models.GetPartsResponseModel import GetPartsResponseModel, PartItem
+from Models.GetPartsResponseModel import GetPartsResponseModel
 from Models.SearchResultsResponseModel import SearchResultsResponseModel, SearchResult
 
 
@@ -63,10 +63,12 @@ class JohnDeereScraperHelper:
             "sec-ch-ua-mobile": "?0",
             "sec-ch-ua-platform": '"Windows"'
         }
+        _proxy = 'http://info0PA2B:4nXTtWDQJW@161.77.66.8:49155'
+        self._proxies = {'http': _proxy, 'https': _proxy}
 
     def get_search_results(self, pc_model: str) -> list[SearchResult]:
         self._search_url_params['q'] = pc_model
-        response = requests.get(self._search_url, headers=self._headers, params=self._search_url_params)
+        response = requests.get(self._search_url, headers=self._headers, params=self._search_url_params, proxies=self._proxies)
         if response.status_code == 200:
             return SearchResultsResponseModel(**response.json()).searchResults
         return []
@@ -76,7 +78,7 @@ class JohnDeereScraperHelper:
         self._get_children_body['ln'] = level_index
         self._get_children_body['sp'] = serialized_path
         self._get_children_body['fr']['equipmentRefId'] = ref_id
-        response = requests.post(self._get_children_url, headers=self._headers, json=self._get_children_body)
+        response = requests.post(self._get_children_url, headers=self._headers, json=self._get_children_body, proxies=self._proxies)
         if response.status_code == 200:
             return GetChildrenResponseModel(**response.json()).navItems
         return []
@@ -85,7 +87,7 @@ class JohnDeereScraperHelper:
         self._get_parts_body['eqID'] = ref_id
         self._get_parts_body['fr']['equipmentRefId'] = ref_id
         self._get_parts_body['pgID'] = page_id
-        response = requests.post(self._get_parts_url, headers=self._headers, json=self._get_parts_body)
+        response = requests.post(self._get_parts_url, headers=self._headers, json=self._get_parts_body, proxies=self._proxies)
         if response.status_code == 200:
             return GetPartsResponseModel(**response.json())
         else:
