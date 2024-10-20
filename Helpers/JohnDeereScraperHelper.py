@@ -69,7 +69,7 @@ class JohnDeereScraperHelper:
 
     def get_search_results(self, pc_model: str, wait_count: int = 25) -> list[SearchResult]:
         self._search_url_params['q'] = pc_model
-        response = requests.get(self._search_url, headers=self._headers, params=self._search_url_params, proxies=self._proxies)
+        response = requests.get(self._search_url, headers=self._headers, params=self._search_url_params)
         if response.status_code == 200:
             return SearchResultsResponseModel(**response.json()).searchResults
         else:
@@ -83,7 +83,7 @@ class JohnDeereScraperHelper:
         self._get_children_body['ln'] = level_index
         self._get_children_body['sp'] = serialized_path
         self._get_children_body['fr']['equipmentRefId'] = ref_id
-        response = requests.post(self._get_children_url, headers=self._headers, json=self._get_children_body, proxies=self._proxies)
+        response = requests.post(self._get_children_url, headers=self._headers, json=self._get_children_body)
         if response.status_code == 200:
             return GetChildrenResponseModel(**response.json()).navItems
         else:
