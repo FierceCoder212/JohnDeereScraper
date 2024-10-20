@@ -2,6 +2,7 @@ import json
 import os.path
 import re
 
+from Helpers.SqLiteHelper import SQLiteHelper
 from Helpers.JohnDeereScraperHelper import JohnDeereScraperHelper
 from Helpers.MSSqlHelper import MSSqlHelper
 from Models.ApiRequestModel import ApiRequestModel
@@ -15,10 +16,12 @@ class JohnDeereScraper:
         self._data = self._get_scraper_data()
         self.scraper_name = 'John Deere Scraper'
         self.sqlHelper = MSSqlHelper()
+        self.sqliteHelper = SQLiteHelper('diagrams')
 
     def start_scraping(self):
+        total = len(self._data.items())
         for key, value in self._data.items():
-            print(f'On code : {key}')
+            print(f'On code : {key} out of {total}')
             try:
                 search_results = self._scraper_helper.get_search_results(pc_model=key)
             except Exception as ex:
@@ -59,9 +62,11 @@ class JohnDeereScraper:
 
     def _create_records(self, parts_response: GetPartsResponseModel, sgl_codes: list[str]) -> list[dict]:
         records = []
-        section_diagram_added = False
+        section_diagram_url = f'data:image/PNG;base64,{parts_response.image}'
+        self.sqliteHelper.create_connection()
         for code in sgl_codes:
             image_filename = self._sanitize_filename(f'{code}-{parts_response.name}.jpg')
+            self.sqliteHelper.insert_record(section_diagram=image_filename, section_diagram_url=section_diagram_url)
             for part in parts_response.partItems:
                 records.append(ApiRequestModel(
                     id=0,
@@ -71,9 +76,9 @@ class JohnDeereScraper:
                     description=part.partDescription,
                     itemNumber=part.sortCalloutLabel,
                     sectonDiagram=image_filename,
-                    sectonDiagramUrl=f'data:image/PNG;base64,{parts_response.image}' if not section_diagram_added else '',
+                    sectonDiagramUrl='',
                     scraperName=self.scraper_name).model_dump())
-                section_diagram_added = True
+        self.sqliteHelper.close_connection()
         return records
 
     @staticmethod

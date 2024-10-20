@@ -73,7 +73,7 @@ class JohnDeereScraperHelper:
         if response.status_code == 200:
             return SearchResultsResponseModel(**response.json()).searchResults
         else:
-            print(f'Error search response : {response.status_code}, {response.text}')
+            print(f'Error search response : {response.status_code}')
             print(f'Waiting for {wait_count}sec.')
             time.sleep(wait_count)
             return self.get_search_results(pc_model=pc_model, wait_count=wait_count + 1)
@@ -87,7 +87,7 @@ class JohnDeereScraperHelper:
         if response.status_code == 200:
             return GetChildrenResponseModel(**response.json()).navItems
         else:
-            print(f'Error children response : {response.status_code}, {response.text}')
+            print(f'Error children response : {response.status_code}')
             print(f'Waiting for {wait_count}sec.')
             time.sleep(wait_count)
             return self.get_children_response(ref_id=ref_id, level_index=level_index, serialized_path=serialized_path, wait_count=wait_count + 1)
@@ -100,7 +100,7 @@ class JohnDeereScraperHelper:
         if response.status_code == 200:
             return GetPartsResponseModel(**response.json())
         else:
-            print(f'Error parts response : {response.status_code}, {response.text}')
+            print(f'Error parts response : {response.status_code}')
             print(f'Waiting for {wait_count}sec.')
             time.sleep(wait_count)
             return self.get_parts_response(ref_id=ref_id, page_id=page_id, wait_count=wait_count + 1)
