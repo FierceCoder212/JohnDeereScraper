@@ -65,7 +65,7 @@ class JohnDeereScraperHelper:
             "sec-ch-ua-platform": '"Windows"'
         }
 
-    def get_search_results(self, pc_model: str, wait_count: int = 1) -> list[SearchResult]:
+    def get_search_results(self, pc_model: str, wait_count: int = 25) -> list[SearchResult]:
         self._search_url_params['q'] = pc_model
         response = requests.get(self._search_url, headers=self._headers, params=self._search_url_params)
         if response.status_code == 200:
@@ -76,7 +76,7 @@ class JohnDeereScraperHelper:
             time.sleep(wait_count)
             return self.get_search_results(pc_model=pc_model, wait_count=wait_count + 1)
 
-    def get_children_response(self, ref_id: str, level_index: int = 1, serialized_path: str = '', wait_count: int = 1) -> list[NavItem]:
+    def get_children_response(self, ref_id: str, level_index: int = 1, serialized_path: str = '', wait_count: int = 25) -> list[NavItem]:
         self._get_children_body['eq'] = ref_id
         self._get_children_body['ln'] = level_index
         self._get_children_body['sp'] = serialized_path
@@ -90,7 +90,7 @@ class JohnDeereScraperHelper:
             time.sleep(wait_count)
             return self.get_children_response(ref_id=ref_id, level_index=level_index, serialized_path=serialized_path, wait_count=wait_count + 1)
 
-    def get_parts_response(self, ref_id: str, page_id: str, wait_count: int = 1) -> Optional[GetPartsResponseModel]:
+    def get_parts_response(self, ref_id: str, page_id: str, wait_count: int = 25) -> Optional[GetPartsResponseModel]:
         self._get_parts_body['eqID'] = ref_id
         self._get_parts_body['fr']['equipmentRefId'] = ref_id
         self._get_parts_body['pgID'] = page_id
