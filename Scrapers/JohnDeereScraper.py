@@ -16,7 +16,7 @@ class JohnDeereScraper:
         self._data = self._get_scraper_data()
         self.scraper_name = 'John Deere Scraper'
         self.sqlHelper = MSSqlHelper()
-        self.sqliteHelper = SQLiteHelper('diagrams')
+        self.sqliteHelper = SQLiteHelper('Images.db')
 
     def start_scraping(self):
         total = len(self._data.items())
