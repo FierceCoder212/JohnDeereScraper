@@ -19,7 +19,11 @@ class JohnDeereScraper:
     def start_scraping(self):
         for key, value in self._data.items():
             print(f'On code : {key}')
-            search_results = self._scraper_helper.get_search_results(pc_model=key)
+            try:
+                search_results = self._scraper_helper.get_search_results(pc_model=key)
+            except Exception as ex:
+                print(f'Exception at search results : {ex}')
+                continue
             print(f'Total search results {len(search_results)}')
             for res in search_results:
                 nav_items = self._scraper_helper.get_children_response(res.equipmentRefId)
@@ -29,7 +33,11 @@ class JohnDeereScraper:
     def _scrape_parts(self, ref_id: str, nav_items: list[NavItem], sgl_codes: list[str]):
         for item in nav_items:
             if item.level == 'PAGE':
-                parts_response = self._scraper_helper.get_parts_response(ref_id=ref_id, page_id=item.id)
+                try:
+                    parts_response = self._scraper_helper.get_parts_response(ref_id=ref_id, page_id=item.id)
+                except Exception as ex:
+                    print(f'Exception at parts response : {ex}')
+                    continue
                 if parts_response:
                     records = self._create_records(parts_response=parts_response, sgl_codes=sgl_codes)
                     print(f'Sending records to SQL: {len(records)}')
@@ -37,9 +45,12 @@ class JohnDeereScraper:
                 else:
                     print('Error : No parts found')
             else:
-                nav_items = self._scraper_helper.get_children_response(ref_id, level_index=item.levelIndex, serialized_path=item.serializedPath)
-                print(f'Nav Items scraped : {len(nav_items)}')
-                self._scrape_parts(ref_id=ref_id, nav_items=nav_items, sgl_codes=sgl_codes)
+                try:
+                    nav_items = self._scraper_helper.get_children_response(ref_id, level_index=item.levelIndex, serialized_path=item.serializedPath)
+                    print(f'Nav Items scraped : {len(nav_items)}')
+                    self._scrape_parts(ref_id=ref_id, nav_items=nav_items, sgl_codes=sgl_codes)
+                except Exception as ex:
+                    print(f'Exception in recursion at else part : {ex}')
 
     @staticmethod
     def _get_scraper_data():
