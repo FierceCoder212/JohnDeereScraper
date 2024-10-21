@@ -42,7 +42,7 @@ class JohnDeereScraper:
                 if parts_response:
                     records = self._create_records(parts_response=parts_response, sgl_codes=sgl_codes)
                     print(f'Sending records to SQL: {len(records)}')
-                    # self.sqlHelper.insert_many_records(records=records)
+                    self.sqlHelper.insert_many_records(records=records)
                 else:
                     print('Error : No parts found')
             else:
