@@ -26,6 +26,7 @@ with open(os.path.join(os.getcwd(), 'Codes.json')) as data_file:
     codes = json.load(data_file)
 
 records = sql_lite_helper.get_records()
+records.extend([f'PC{i}' for i in range(1, 20000) if f'PC{i}' not in records])
 
 codes = [code for code in codes if code not in records]
 
