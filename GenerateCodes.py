@@ -6,7 +6,6 @@ from Helpers.JohnDeereScraperHelper import JohnDeereScraperHelper
 from Helpers.SqLiteCodesHelper import SQLiteCodesHelper
 
 
-# Function to process a range of codes
 def process_code_range(chunk):
     sql_lite_helper = SQLiteCodesHelper('Codes.db')
     for item in chunk:
@@ -15,11 +14,11 @@ def process_code_range(chunk):
         pc_number_matches = pc_number_matches.replace(' matches', '').strip()
         if pc_number_matches.isdigit() and int(pc_number_matches) >= 1:
             sql_lite_helper.insert_record(item, search_results.searchResults[0].model)
+            print(f'----Code found for item : {item}')
         else:
-            print(f'Code not found for item : {item}')
+            print(f'++++Code not found for item : {item}')
 
 
-# Initialize helpers and load data
 scraper_helper = JohnDeereScraperHelper()
 sql_lite_helper = SQLiteCodesHelper('Codes.db')
 with open(os.path.join(os.getcwd(), 'Codes.json')) as data_file:
@@ -30,18 +29,13 @@ records.extend([f'PC{i}' for i in range(1, 20000) if f'PC{i}' not in records])
 
 codes = [code for code in codes if code not in records]
 
-# Number of workers (threads) to use
 num_workers = 10
 chunk_size = math.ceil(len(codes) / num_workers)
 chunks = [codes[i:i + chunk_size] for i in range(0, len(codes), chunk_size)]
 print(f'Total Codes : {len(codes)}')
 
-# Create a thread pool to process the ranges
 with concurrent.futures.ThreadPoolExecutor(max_workers=num_workers) as executor:
-    # Submit tasks for each range
     futures = [executor.submit(process_code_range, chunk) for chunk in chunks]
-
-    # Wait for all tasks to complete and handle exceptions
     for future in concurrent.futures.as_completed(futures):
         try:
             future.result()
