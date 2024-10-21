@@ -8,7 +8,7 @@ class MSSqlHelper:
         self.url = "http://108.181.167.26:8080/TempAddParts"
 
     def insert_many_records(self, records: list[dict]):
-        page_size = 10
+        page_size = 10000
         total_length = len(records)
         num_pages = math.ceil(total_length / page_size)
 

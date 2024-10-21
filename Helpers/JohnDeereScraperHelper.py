@@ -1,5 +1,5 @@
 import time
-from typing import Optional, Any
+from typing import Optional
 
 import requests
 
@@ -64,35 +64,37 @@ class JohnDeereScraperHelper:
             "sec-ch-ua-mobile": "?0",
             "sec-ch-ua-platform": '"Windows"'
         }
+        proxy = 'sales_sgl-bearing_com-dc:sglrayobyte123@la.residential.rayobyte.com:8000'
+        self._proxies = {'http': proxy, 'https': proxy}
 
-    def get_search_results(self, pc_model: str, wait_count: int = 25) -> [list[SearchResult], Any]:
+    def get_search_results(self, pc_model: str, wait_count: int = 25) -> list[SearchResult]:
         self._search_url_params['q'] = pc_model
-        response = requests.get(self._search_url, headers=self._headers, params=self._search_url_params)
+        response = requests.get(self._search_url, headers=self._headers, params=self._search_url_params, proxies=self._proxies)
         if response.status_code == 200:
-            return SearchResultsResponseModel(**response.json()).searchResults, response.json()
+            return SearchResultsResponseModel(**response.json()).searchResults
         else:
             print(f'Error search response : {response.status_code}')
             print(f'Waiting for {wait_count}sec.')
             time.sleep(wait_count)
             return self.get_search_results(pc_model=pc_model, wait_count=wait_count + 1)
 
-    def get_search_results_exception_messages(self, pc_model: str, wait_count: int = 25) -> ExceptionMessage:
+    def get_search_results_exception_messages(self, pc_model: str, wait_count: int = 25) -> SearchResultsResponseModel:
         self._search_url_params['q'] = pc_model
-        response = requests.get(self._search_url, headers=self._headers, params=self._search_url_params)
+        response = requests.get(self._search_url, headers=self._headers, params=self._search_url_params, proxies=self._proxies)
         if response.status_code == 200:
-            return SearchResultsResponseModel(**response.json()).serviceExceptionMessages
+            return SearchResultsResponseModel(**response.json())
         else:
             print(f'Error search response : {response.status_code}')
             print(f'Waiting for {wait_count}sec.')
             time.sleep(wait_count)
-            return self.get_search_results(pc_model=pc_model, wait_count=wait_count + 1)
+            return self.get_search_results_exception_messages(pc_model=pc_model, wait_count=wait_count + 1)
 
     def get_children_response(self, ref_id: str, level_index: int = 1, serialized_path: str = '', wait_count: int = 25) -> list[NavItem]:
         self._get_children_body['eq'] = ref_id
         self._get_children_body['ln'] = level_index
         self._get_children_body['sp'] = serialized_path
         self._get_children_body['fr']['equipmentRefId'] = ref_id
-        response = requests.post(self._get_children_url, headers=self._headers, json=self._get_children_body)
+        response = requests.post(self._get_children_url, headers=self._headers, json=self._get_children_body, proxies=self._proxies)
         if response.status_code == 200:
             return GetChildrenResponseModel(**response.json()).navItems
         else:
@@ -105,7 +107,7 @@ class JohnDeereScraperHelper:
         self._get_parts_body['eqID'] = ref_id
         self._get_parts_body['fr']['equipmentRefId'] = ref_id
         self._get_parts_body['pgID'] = page_id
-        response = requests.post(self._get_parts_url, headers=self._headers, json=self._get_parts_body)
+        response = requests.post(self._get_parts_url, headers=self._headers, json=self._get_parts_body, proxies=self._proxies)
         if response.status_code == 200:
             return GetPartsResponseModel(**response.json())
         else:

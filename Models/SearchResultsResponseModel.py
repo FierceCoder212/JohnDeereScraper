@@ -3,7 +3,7 @@ from pydantic import BaseModel
 
 class SearchResultsResponseModel(BaseModel):
     searchResults: list['SearchResult']
-    serviceExceptionMessages:'ExceptionMessage'
+    serviceExceptionMessages: 'ExceptionMessage'
 
 
 class SearchResult(BaseModel):

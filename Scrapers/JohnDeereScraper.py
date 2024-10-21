@@ -1,4 +1,6 @@
+import concurrent.futures
 import json
+import math
 import os.path
 import re
 
@@ -18,20 +20,33 @@ class JohnDeereScraper:
         self.sqlHelper = MSSqlHelper()
         self.sqliteHelper = SQLiteHelper('Images.db')
 
-    def start_scraping(self):
-        total = len(self._data.items())
-        for key, value in self._data.items():
-            print(f'On code : {key} out of {total}')
-            try:
-                search_results = self._scraper_helper.get_search_results(pc_model=key)
-            except Exception as ex:
-                print(f'Exception at search results : {ex}')
-                continue
-            print(f'Total search results {len(search_results)}')
-            for res in search_results:
-                nav_items = self._scraper_helper.get_children_response(res.equipmentRefId)
-                print(f'Nav Items scraped : {len(nav_items)}')
-                self._scrape_parts(ref_id=res.equipmentRefId, nav_items=nav_items, sgl_codes=value)
+    def start_scraping(self, num_threads=10):
+        def scrape_chunk(data_chunk):
+            total = len(data_chunk)
+            for key, value in data_chunk.items():
+                print(f'On code : {key} out of {total}')
+                try:
+                    search_results = self._scraper_helper.get_search_results(pc_model=key)
+                except Exception as ex:
+                    print(f'Exception at search results : {ex}')
+                    continue
+                print(f'Total search results {len(search_results)}')
+                for res in search_results:
+                    nav_items = self._scraper_helper.get_children_response(res.equipmentRefId)
+                    print(f'Nav Items scraped : {len(nav_items)}')
+                    self._scrape_parts(ref_id=res.equipmentRefId, nav_items=nav_items, sgl_codes=value)
+
+        data_items = list(self._data.items())
+        chunk_size = math.ceil(len(data_items) / num_threads)
+        chunks = [dict(data_items[i:i + chunk_size]) for i in range(0, len(data_items), chunk_size)]
+        with concurrent.futures.ThreadPoolExecutor(max_workers=num_threads) as executor:
+            futures = [executor.submit(scrape_chunk, chunk) for chunk in chunks]
+
+            for future in concurrent.futures.as_completed(futures):
+                try:
+                    future.result()
+                except Exception as ex:
+                    print(f'Error in thread: {ex}')
 
     def _scrape_parts(self, ref_id: str, nav_items: list[NavItem], sgl_codes: list[str]):
         for item in nav_items:

@@ -20,7 +20,8 @@ class SQLiteCodesHelper:
         create_table_sql = """
         CREATE TABLE IF NOT EXISTS pc_codes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            pc_code TEXT NOT NULL
+            pc_code TEXT NOT NULL,
+            model_name TEXT NOT NULL
         );
         """
         try:
@@ -30,15 +31,15 @@ class SQLiteCodesHelper:
             print(f"Error creating table: {e}")
         self.close_connection()
 
-    def insert_record(self, pc_code):
+    def insert_record(self, pc_code, model_name):
         self.create_connection()
         insert_sql = """
-        INSERT INTO pc_codes (pc_code)
-        VALUES (?);
+        INSERT INTO pc_codes (pc_code, model_name)
+        VALUES (?,?);
         """
         try:
             cursor = self.conn.cursor()
-            cursor.execute(insert_sql, (pc_code,))
+            cursor.execute(insert_sql, (pc_code, model_name))
             self.conn.commit()
         except Error as e:
             print(f"Error inserting record: {e}")
