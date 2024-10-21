@@ -1,52 +1,35 @@
-import concurrent.futures
-import json
-import math
-import os.path
 import re
 
-from Helpers.SqLiteHelper import SQLiteHelper
 from Helpers.JohnDeereScraperHelper import JohnDeereScraperHelper
 from Helpers.MSSqlHelper import MSSqlHelper
+from Helpers.SqLiteHelper import SQLiteHelper
 from Models.ApiRequestModel import ApiRequestModel
 from Models.GetChildrenResponseModel import NavItem
 from Models.GetPartsResponseModel import GetPartsResponseModel
 
 
 class JohnDeereScraper:
-    def __init__(self):
+    def __init__(self, data_chunk: dict):
         self._scraper_helper = JohnDeereScraperHelper()
-        self._data = self._get_scraper_data()
+        self._data = data_chunk
         self.scraper_name = 'John Deere Scraper'
         self.sqlHelper = MSSqlHelper()
         self.sqliteHelper = SQLiteHelper('Images.db')
 
-    def start_scraping(self, num_threads=10):
-        def scrape_chunk(data_chunk):
-            total = len(data_chunk)
-            for key, value in data_chunk.items():
-                print(f'On code : {key} out of {total}')
-                try:
-                    search_results = self._scraper_helper.get_search_results(pc_model=key)
-                except Exception as ex:
-                    print(f'Exception at search results : {ex}')
-                    continue
-                print(f'Total search results {len(search_results)}')
-                for res in search_results:
-                    nav_items = self._scraper_helper.get_children_response(res.equipmentRefId)
-                    print(f'Nav Items scraped : {len(nav_items)}')
-                    self._scrape_parts(ref_id=res.equipmentRefId, nav_items=nav_items, sgl_codes=value)
-
-        data_items = list(self._data.items())
-        chunk_size = math.ceil(len(data_items) / num_threads)
-        chunks = [dict(data_items[i:i + chunk_size]) for i in range(0, len(data_items), chunk_size)]
-        with concurrent.futures.ThreadPoolExecutor(max_workers=num_threads) as executor:
-            futures = [executor.submit(scrape_chunk, chunk) for chunk in chunks]
-
-            for future in concurrent.futures.as_completed(futures):
-                try:
-                    future.result()
-                except Exception as ex:
-                    print(f'Error in thread: {ex}')
+    def start_scraping(self):
+        total = len(self._data)
+        for key, value in self._data.items():
+            print(f'On code : {key} out of {total}')
+            try:
+                search_results = self._scraper_helper.get_search_results(pc_model=key)
+            except Exception as ex:
+                print(f'Exception at search results : {ex}')
+                continue
+            print(f'Total search results {len(search_results)}')
+            for res in search_results:
+                nav_items = self._scraper_helper.get_children_response(res.equipmentRefId)
+                print(f'Nav Items scraped : {len(nav_items)}')
+                self._scrape_parts(ref_id=res.equipmentRefId, nav_items=nav_items, sgl_codes=value)
 
     def _scrape_parts(self, ref_id: str, nav_items: list[NavItem], sgl_codes: list[str]):
         for item in nav_items:
@@ -59,7 +42,7 @@ class JohnDeereScraper:
                 if parts_response:
                     records = self._create_records(parts_response=parts_response, sgl_codes=sgl_codes)
                     print(f'Sending records to SQL: {len(records)}')
-                    self.sqlHelper.insert_many_records(records=records)
+                    # self.sqlHelper.insert_many_records(records=records)
                 else:
                     print('Error : No parts found')
             else:
@@ -69,11 +52,6 @@ class JohnDeereScraper:
                     self._scrape_parts(ref_id=ref_id, nav_items=nav_items, sgl_codes=sgl_codes)
                 except Exception as ex:
                     print(f'Exception in recursion at else part : {ex}')
-
-    @staticmethod
-    def _get_scraper_data():
-        with open(os.path.join(os.getcwd(), 'UniqueData.json')) as data_file:
-            return json.load(data_file)
 
     def _create_records(self, parts_response: GetPartsResponseModel, sgl_codes: list[str]) -> list[dict]:
         records = []
