@@ -33,6 +33,7 @@ codes = [code for code in codes if code not in records]
 num_workers = 10
 chunk_size = math.ceil(len(codes) / num_workers)
 chunks = [codes[i:i + chunk_size] for i in range(0, len(codes), chunk_size)]
+print(f'Total Codes : {len(codes)}')
 
 # Create a thread pool to process the ranges
 with concurrent.futures.ThreadPoolExecutor(max_workers=num_workers) as executor:

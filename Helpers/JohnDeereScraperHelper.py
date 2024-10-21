@@ -67,51 +67,74 @@ class JohnDeereScraperHelper:
         proxy = 'sales_sgl-bearing_com-dc:sglrayobyte123@la.residential.rayobyte.com:8000'
         self._proxies = {'http': proxy, 'https': proxy}
 
-    def get_search_results(self, pc_model: str, wait_count: int = 25) -> list[SearchResult]:
+    def get_search_results(self, pc_model: str, wait_count: int = 1) -> list[SearchResult]:
         self._search_url_params['q'] = pc_model
-        response = requests.get(self._search_url, headers=self._headers, params=self._search_url_params, proxies=self._proxies)
-        if response.status_code == 200:
-            return SearchResultsResponseModel(**response.json()).searchResults
-        else:
-            print(f'Error search response : {response.status_code}')
+        try:
+            response = requests.get(self._search_url, headers=self._headers, params=self._search_url_params, proxies=self._proxies)
+            if response.status_code == 200:
+                return SearchResultsResponseModel(**response.json()).searchResults
+            else:
+                print(f'Error search response : {response.status_code}')
+                print(f'Waiting for {wait_count}sec.')
+                time.sleep(wait_count)
+                return self.get_search_results(pc_model=pc_model, wait_count=wait_count + 1)
+        except Exception as ex:
+            print(f'Error search response : {ex}')
             print(f'Waiting for {wait_count}sec.')
             time.sleep(wait_count)
             return self.get_search_results(pc_model=pc_model, wait_count=wait_count + 1)
 
-    def get_search_results_exception_messages(self, pc_model: str, wait_count: int = 25) -> SearchResultsResponseModel:
+    def get_search_results_exception_messages(self, pc_model: str, wait_count: int = 1) -> SearchResultsResponseModel:
         self._search_url_params['q'] = pc_model
-        response = requests.get(self._search_url, headers=self._headers, params=self._search_url_params, proxies=self._proxies)
-        if response.status_code == 200:
-            return SearchResultsResponseModel(**response.json())
-        else:
-            print(f'Error search response : {response.status_code}')
-            print(f'Waiting for {wait_count}sec.')
+        try:
+            response = requests.get(self._search_url, headers=self._headers, params=self._search_url_params, proxies=self._proxies)
+            if response.status_code == 200:
+                return SearchResultsResponseModel(**response.json())
+            else:
+                print(f'Error search response : {response.status_code}')
+                print(f'Waiting for {wait_count}sec.')
+                time.sleep(wait_count)
+                return self.get_search_results_exception_messages(pc_model=pc_model, wait_count=wait_count + 1)
+        except Exception as ex:
+            print(f'Error search response : {ex}')
             time.sleep(wait_count)
             return self.get_search_results_exception_messages(pc_model=pc_model, wait_count=wait_count + 1)
 
-    def get_children_response(self, ref_id: str, level_index: int = 1, serialized_path: str = '', wait_count: int = 25) -> list[NavItem]:
+    def get_children_response(self, ref_id: str, level_index: int = 1, serialized_path: str = '', wait_count: int = 1) -> list[NavItem]:
         self._get_children_body['eq'] = ref_id
         self._get_children_body['ln'] = level_index
         self._get_children_body['sp'] = serialized_path
         self._get_children_body['fr']['equipmentRefId'] = ref_id
-        response = requests.post(self._get_children_url, headers=self._headers, json=self._get_children_body, proxies=self._proxies)
-        if response.status_code == 200:
-            return GetChildrenResponseModel(**response.json()).navItems
-        else:
-            print(f'Error children response : {response.status_code}')
+        try:
+            response = requests.post(self._get_children_url, headers=self._headers, json=self._get_children_body, proxies=self._proxies)
+            if response.status_code == 200:
+                return GetChildrenResponseModel(**response.json()).navItems
+            else:
+                print(f'Error children response : {response.status_code}')
+                print(f'Waiting for {wait_count}sec.')
+                time.sleep(wait_count)
+                return self.get_children_response(ref_id=ref_id, level_index=level_index, serialized_path=serialized_path, wait_count=wait_count + 1)
+        except Exception as ex:
+            print(f'Error children response : {ex}')
             print(f'Waiting for {wait_count}sec.')
             time.sleep(wait_count)
             return self.get_children_response(ref_id=ref_id, level_index=level_index, serialized_path=serialized_path, wait_count=wait_count + 1)
 
-    def get_parts_response(self, ref_id: str, page_id: str, wait_count: int = 25) -> Optional[GetPartsResponseModel]:
+    def get_parts_response(self, ref_id: str, page_id: str, wait_count: int = 1) -> Optional[GetPartsResponseModel]:
         self._get_parts_body['eqID'] = ref_id
         self._get_parts_body['fr']['equipmentRefId'] = ref_id
         self._get_parts_body['pgID'] = page_id
-        response = requests.post(self._get_parts_url, headers=self._headers, json=self._get_parts_body, proxies=self._proxies)
-        if response.status_code == 200:
-            return GetPartsResponseModel(**response.json())
-        else:
-            print(f'Error parts response : {response.status_code}')
+        try:
+            response = requests.post(self._get_parts_url, headers=self._headers, json=self._get_parts_body, proxies=self._proxies)
+            if response.status_code == 200:
+                return GetPartsResponseModel(**response.json())
+            else:
+                print(f'Error parts response : {response.status_code}')
+                print(f'Waiting for {wait_count}sec.')
+                time.sleep(wait_count)
+                return self.get_parts_response(ref_id=ref_id, page_id=page_id, wait_count=wait_count + 1)
+        except Exception as ex:
+            print(f'Error parts response : {ex}')
             print(f'Waiting for {wait_count}sec.')
             time.sleep(wait_count)
             return self.get_parts_response(ref_id=ref_id, page_id=page_id, wait_count=wait_count + 1)
