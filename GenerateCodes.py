@@ -21,11 +21,16 @@ def process_code_range(chunk):
 
 # Initialize helpers and load data
 scraper_helper = JohnDeereScraperHelper()
+sql_lite_helper = SQLiteCodesHelper('Codes.db')
 with open(os.path.join(os.getcwd(), 'Codes.json')) as data_file:
     codes = json.load(data_file)
 
+records = sql_lite_helper.get_records()
+
+codes = [code for code in codes if code not in records]
+
 # Number of workers (threads) to use
-num_workers = 20
+num_workers = 10
 chunk_size = math.ceil(len(codes) / num_workers)
 chunks = [codes[i:i + chunk_size] for i in range(0, len(codes), chunk_size)]
 
