@@ -5,7 +5,7 @@ import requests
 
 from Models.GetChildrenResponseModel import GetChildrenResponseModel, NavItem
 from Models.GetPartsResponseModel import GetPartsResponseModel
-from Models.SearchResultsResponseModel import SearchResultsResponseModel, SearchResult, ExceptionMessage
+from Models.SearchResultsResponseModel import SearchResultsResponseModel, SearchResult
 
 
 class JohnDeereScraperHelper:
