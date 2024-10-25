@@ -20,21 +20,25 @@ def csv_first_column_to_json_list(csv_file_path):
     # Convert the list to JSON format
     json_data = json.dumps(data_list, indent=4)
 
-    return json_data
+    return json.loads(json_data)
 
 
 # Example usage
-csv_file_path = r"C:\Users\ABDULLAH\Downloads\Sgl.csv"  # Replace with your CSV file path
+csv_file_path = r"C:\Users\ABDULLAH\Documents\SGL.csv"  # Replace with your CSV file path
 
-json_result = csv_first_column_to_json_list(csv_file_path)
-with open('NewUniqueData.json', 'r') as json_file:
+json_result = csv_first_column_to_json_list(r"C:\Users\ABDULLAH\Documents\SGL.csv")
+json_result.extend(csv_first_column_to_json_list(r"C:\Users\ABDULLAH\Downloads\Sgl.csv"))
+json_result = list(set(json_result))
+print(len(json_result))
+with open('UniqueData.json', 'r') as json_file:
     data = json.load(json_file)
+print(len(data))
 remaining_data = {}
 for key, value in data.items():
     for item in value:
-        if item in json_result:
+        if item not in json_result:
             if key not in remaining_data.keys():
                 remaining_data[key] = []
             remaining_data[key].append(item)
-print(json.dumps(remaining_data, indent=4))
-print(len(remaining_data.keys()))
+with open('UniqueData.json', 'w') as json_file:
+    json.dump(remaining_data, json_file, indent=4)
