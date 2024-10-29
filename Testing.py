@@ -28,7 +28,7 @@ csv_file_path = r"C:\Users\ABDULLAH\Documents\SGL.csv"  # Replace with your CSV 
 
 json_result = csv_first_column_to_json_list(r"C:\Users\ABDULLAH\Documents\SGL.csv")
 print(len(json_result))
-with open('UniqueData.json', 'r') as json_file:
+with open('All Data.json', 'r') as json_file:
     data = json.load(json_file)
 print(len(data))
 remaining_data = {}
@@ -38,6 +38,16 @@ for key, value in data.items():
             if key not in remaining_data.keys():
                 remaining_data[key] = []
             remaining_data[key].append(item)
+print(len(remaining_data.keys()))
+remaining_data = {}
+for key, value in data.items():
+    is_present = False
+    for item in value:
+        if item in json_result:
+            is_present = True
+            break
+    if not is_present:
+        remaining_data[key] = [value[0]]
 print(len(remaining_data.keys()))
 with open('UniqueData.json', 'w') as json_file:
     json.dump(remaining_data, json_file, indent=4)
