@@ -3,14 +3,16 @@ import json
 import math
 import os
 
+from Helpers.GoogleDriveHelper import GoogleDriverHelper
 from Scrapers.JohnDeereScraper import JohnDeereScraper
 
 with open(os.path.join(os.getcwd(), 'All Data.json')) as data_file:
     data = json.load(data_file)
+google_drive_helper = GoogleDriverHelper('John Dheere Scraper')
 
 
 def start_scraper(chunk: dict):
-    scraper_helper = JohnDeereScraper(chunk)
+    scraper_helper = JohnDeereScraper(chunk, google_drive_helper)
     scraper_helper.start_scraping()
 
 

@@ -11,12 +11,12 @@ from Models.GetPartsResponseModel import GetPartsResponseModel
 
 
 class JohnDeereScraper:
-    def __init__(self, data_chunk: dict):
+    def __init__(self, data_chunk: dict, google_drive_helper: GoogleDriverHelper):
         self._scraper_helper = JohnDeereScraperHelper()
         self._data = data_chunk
         self.scraper_name = 'John Deere Scraper'
         self.sqlHelper = MSSqlHelper()
-        self.google_drive_helper = GoogleDriverHelper('John Dheere Scraper')
+        self.google_drive_helper = google_drive_helper
 
     def start_scraping(self):
         total = len(self._data)
