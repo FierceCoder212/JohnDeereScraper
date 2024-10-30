@@ -1,10 +1,10 @@
 import base64
+import os
 import re
 
 from Helpers.GoogleDriveHelper import GoogleDriverHelper
 from Helpers.JohnDeereScraperHelper import JohnDeereScraperHelper
 from Helpers.MSSqlHelper import MSSqlHelper
-from Helpers.SqLiteHelper import SQLiteHelper
 from Models.ApiRequestModel import ApiRequestModel
 from Models.GetChildrenResponseModel import NavItem
 from Models.GetPartsResponseModel import GetPartsResponseModel
@@ -16,7 +16,6 @@ class JohnDeereScraper:
         self._data = data_chunk
         self.scraper_name = 'John Deere Scraper'
         self.sqlHelper = MSSqlHelper()
-        self.sqliteHelper = SQLiteHelper('Images.db')
         self.google_drive_helper = GoogleDriverHelper('John Dheere Scraper')
 
     def start_scraping(self):
@@ -63,6 +62,8 @@ class JohnDeereScraper:
             image_filename = self._sanitize_filename(f'{code}-{parts_response.name}.jpg')
             print(f'Uploading {image_filename} to google drive')
             self.google_drive_helper.upload_file_from_content(file_bytes=section_diagram, file_name=image_filename)
+            if os.path.exists(image_filename):
+                os.remove(image_filename)
             for part in parts_response.partItems:
                 records.append(ApiRequestModel(
                     id=0,
