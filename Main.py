@@ -5,7 +5,7 @@ import os
 
 from Scrapers.JohnDeereScraper import JohnDeereScraper
 
-with open(os.path.join(os.getcwd(), 'UniqueData.json')) as data_file:
+with open(os.path.join(os.getcwd(), 'All Data.json')) as data_file:
     data = json.load(data_file)
 
 

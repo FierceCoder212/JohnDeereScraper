@@ -1,5 +1,7 @@
+import base64
 import re
 
+from Helpers.GoogleDriveHelper import GoogleDriverHelper
 from Helpers.JohnDeereScraperHelper import JohnDeereScraperHelper
 from Helpers.MSSqlHelper import MSSqlHelper
 from Helpers.SqLiteHelper import SQLiteHelper
@@ -15,6 +17,7 @@ class JohnDeereScraper:
         self.scraper_name = 'John Deere Scraper'
         self.sqlHelper = MSSqlHelper()
         self.sqliteHelper = SQLiteHelper('Images.db')
+        self.google_drive_helper = GoogleDriverHelper('John Dheere Scraper')
 
     def start_scraping(self):
         total = len(self._data)
@@ -55,11 +58,11 @@ class JohnDeereScraper:
 
     def _create_records(self, parts_response: GetPartsResponseModel, sgl_codes: list[str]) -> list[dict]:
         records = []
-        section_diagram_url = f'data:image/PNG;base64,{parts_response.image}'
-        self.sqliteHelper.create_connection()
+        section_diagram = base64.b64decode(parts_response.image)
         for code in sgl_codes:
             image_filename = self._sanitize_filename(f'{code}-{parts_response.name}.jpg')
-            self.sqliteHelper.insert_record(section_diagram=image_filename, section_diagram_url=section_diagram_url)
+            print(f'Uploading {image_filename} to google drive')
+            self.google_drive_helper.upload_file_from_content(file_bytes=section_diagram, file_name=image_filename)
             for part in parts_response.partItems:
                 records.append(ApiRequestModel(
                     id=0,
@@ -71,7 +74,6 @@ class JohnDeereScraper:
                     sectonDiagram=image_filename,
                     sectonDiagramUrl='',
                     scraperName=self.scraper_name).model_dump())
-        self.sqliteHelper.close_connection()
         return records
 
     @staticmethod
