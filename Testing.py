@@ -1,53 +1,8 @@
-import csv
 import json
 
+from googleapiclient.errors import HttpError
 
-def csv_first_column_to_json_list(csv_file_path):
-    data_list = []
+from Helpers.GoogleDriveHelper import GoogleDriverHelper
 
-    # Open the CSV file
-    with open(csv_file_path, mode='r') as file:
-        # Create a CSV reader
-        csv_reader = csv.reader(file)
-
-        # Skip the header row (optional, if your CSV has headers)
-        next(csv_reader, None)
-
-        # Extract the first column (index 0) and append to the list
-        for row in csv_reader:
-            data_list.append(row[0])  # Access the first column by index
-
-    # Convert the list to JSON format
-    json_data = json.dumps(data_list, indent=4)
-
-    return json.loads(json_data)
-
-
-# Example usage
-csv_file_path = r"C:\Users\ABDULLAH\Documents\SGL.csv"  # Replace with your CSV file path
-
-json_result = csv_first_column_to_json_list(r"C:\Users\ABDULLAH\Documents\SGL.csv")
-print(len(json_result))
-with open('All Data.json', 'r') as json_file:
-    data = json.load(json_file)
-print(len(data))
-remaining_data = {}
-for key, value in data.items():
-    for item in value:
-        if item not in json_result:
-            if key not in remaining_data.keys():
-                remaining_data[key] = []
-            remaining_data[key].append(item)
-print(len(remaining_data.keys()))
-remaining_data = {}
-for key, value in data.items():
-    is_present = False
-    for item in value:
-        if item in json_result:
-            is_present = True
-            break
-    if not is_present:
-        remaining_data[key] = [value[0]]
-print(len(remaining_data.keys()))
-with open('UniqueData.json', 'w') as json_file:
-    json.dump(remaining_data, json_file, indent=4)
+google_drive_helper = GoogleDriverHelper('John Dheere Scraper')
+files = google_drive_helper.save_prev_drive_files_on_folder()

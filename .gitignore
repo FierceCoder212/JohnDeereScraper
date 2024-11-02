@@ -3,3 +3,5 @@
 __pycache__
 Images.db
 Codes.db
+credentials.json
+settings.yaml

@@ -20,8 +20,9 @@ class JohnDeereScraper:
 
     def start_scraping(self):
         total = len(self._data)
+        index = 0
         for key, value in self._data.items():
-            print(f'On code : {key} out of {total}')
+            print(f'On code : {index + 1} out of {total}')
             try:
                 search_results = self._scraper_helper.get_search_results(pc_model=key)
             except Exception as ex:
@@ -32,6 +33,7 @@ class JohnDeereScraper:
                 nav_items = self._scraper_helper.get_children_response(res.equipmentRefId)
                 print(f'Nav Items scraped : {len(nav_items)}')
                 self._scrape_parts(ref_id=res.equipmentRefId, nav_items=nav_items, sgl_codes=value)
+            index += 1
 
     def _scrape_parts(self, ref_id: str, nav_items: list[NavItem], sgl_codes: list[str]):
         for item in nav_items:
