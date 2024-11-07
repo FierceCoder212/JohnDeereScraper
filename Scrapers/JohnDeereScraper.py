@@ -1,4 +1,6 @@
 import base64
+import json
+import logging
 import os
 import re
 
@@ -8,6 +10,13 @@ from Helpers.MSSqlHelper import MSSqlHelper
 from Models.ApiRequestModel import ApiRequestModel
 from Models.GetChildrenResponseModel import NavItem
 from Models.GetPartsResponseModel import GetPartsResponseModel
+
+logging.basicConfig(
+    filename='john_deere_scraper.log',
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 
 class JohnDeereScraper:
@@ -42,6 +51,8 @@ class JohnDeereScraper:
                     parts_response = self._scraper_helper.get_parts_response(ref_id=ref_id, page_id=item.id)
                 except Exception as ex:
                     print(f'Exception at parts response : {ex}')
+                    logger.error(f'Parts Error at sgl : {ex}')
+                    logger.error(json.dumps(sgl_codes, indent=4))
                     continue
                 if parts_response:
                     records = self._create_records(parts_response=parts_response, sgl_codes=sgl_codes)
