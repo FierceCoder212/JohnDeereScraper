@@ -6,7 +6,7 @@ from pydantic import BaseModel
 class GetPartsResponseModel(BaseModel):
     name: str
     image: str
-    partItems: list['PartItem']
+    partItems: Optional[list['PartItem']]
 
 
 class PartItem(BaseModel):

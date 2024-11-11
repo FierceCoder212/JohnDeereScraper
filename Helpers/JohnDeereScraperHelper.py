@@ -128,7 +128,10 @@ class JohnDeereScraperHelper:
             response = requests.post(self._get_parts_url, headers=self._headers, json=self._get_parts_body, proxies=self._proxies)
             if response.status_code == 200:
                 try:
-                    return GetPartsResponseModel(**response.json())
+                    response_json = response.json()
+                    if 'partItems' not in response_json.keys():
+                        response_json['partItems'] = []
+                    return GetPartsResponseModel(**response_json)
                 except Exception as ex:
                     print(f'Error parts response : {ex}')
                     return None
