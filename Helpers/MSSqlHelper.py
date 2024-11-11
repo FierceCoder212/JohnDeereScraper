@@ -5,7 +5,7 @@ import requests
 
 class MSSqlHelper:
     def __init__(self):
-        self.url = "http://108.181.167.26:8080/AddParts"
+        self.url = "http://108.181.167.26:8080/TempAddParts"
 
     def insert_many_records(self, records: list[dict]):
         page_size = 10000
