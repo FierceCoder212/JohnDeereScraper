@@ -40,7 +40,7 @@ class JohnDeereScraper:
             print(f'Total search results {len(search_results)}')
             for res in search_results:
                 nav_items = self._scraper_helper.get_children_response(res.equipmentRefId)
-                print(f'Nav Items scraped : {len(nav_items)}')
+                # print(f'Nav Items scraped : {len(nav_items)}')
                 self._scrape_parts(ref_id=res.equipmentRefId, nav_items=nav_items, sgl_codes=value)
             index += 1
 
@@ -56,14 +56,14 @@ class JohnDeereScraper:
                     continue
                 if parts_response:
                     records = self._create_records(parts_response=parts_response, sgl_codes=sgl_codes)
-                    print(f'Sending records to SQL: {len(records)}')
+                    # print(f'Sending records to SQL: {len(records)}')
                     self.sqlHelper.insert_many_records(records=records)
                 else:
                     print('Error : No parts found')
             else:
                 try:
                     nav_items = self._scraper_helper.get_children_response(ref_id, level_index=item.levelIndex, serialized_path=item.serializedPath)
-                    print(f'Nav Items scraped : {len(nav_items)}')
+                    # print(f'Nav Items scraped : {len(nav_items)}')
                     self._scrape_parts(ref_id=ref_id, nav_items=nav_items, sgl_codes=sgl_codes)
                 except Exception as ex:
                     print(f'Exception in recursion at else part : {ex}')
@@ -73,7 +73,7 @@ class JohnDeereScraper:
         section_diagram = base64.b64decode(parts_response.image)
         for code in sgl_codes:
             image_filename = self._sanitize_filename(f'{code}-{parts_response.name}.jpg')
-            print(f'Uploading {image_filename} to google drive')
+            # print(f'Uploading {image_filename} to google drive')
             self.google_drive_helper.upload_file_from_content(file_bytes=section_diagram, file_name=image_filename)
             if os.path.exists(image_filename):
                 os.remove(image_filename)

@@ -19,4 +19,4 @@ class MSSqlHelper:
             response = requests.post(self.url, json=chunk_records)
             if response.status_code != 200:
                 raise Exception(f"Failed to add records {len(chunk_records)}. Status Code: {response.status_code}")
-        print(f'{total_length} records are added to database')
+        # print(f'{total_length} records are added to database')
