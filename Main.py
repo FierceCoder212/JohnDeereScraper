@@ -8,7 +8,7 @@ from Scrapers.JohnDeereScraper import JohnDeereScraper
 
 with open(os.path.join(os.getcwd(), 'Unique Data.json')) as data_file:
     data = json.load(data_file)
-google_drive_helper = GoogleDriverHelper('John Dheere Scraper_3', folder_suffix=4)
+google_drive_helper = GoogleDriverHelper('John Dheere Scraper')
 
 
 def start_scraper(chunk: dict):
