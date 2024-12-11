@@ -1,5 +1,4 @@
 import base64
-import json
 import logging
 import os
 import re
@@ -11,11 +10,6 @@ from Models.ApiRequestModel import ApiRequestModel
 from Models.GetChildrenResponseModel import NavItem
 from Models.GetPartsResponseModel import GetPartsResponseModel
 
-logging.basicConfig(
-    filename='john_deere_scraper.log',
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
 
 
@@ -31,13 +25,13 @@ class JohnDeereScraper:
         total = len(self._data)
         index = 0
         for key, value in self._data.items():
-            print(f'On code : {index + 1} out of {total}')
+            logger.info(f'On code : {index + 1} out of {total}')
             try:
                 search_results = self._scraper_helper.get_search_results(pc_model=key)
             except Exception as ex:
-                print(f'Exception at search results : {ex}')
+                logger.error(f'Exception at search results : {ex}')
                 continue
-            print(f'Total search results {len(search_results)}')
+            logger.info(f'Total search results {len(search_results)}')
             for res in search_results:
                 nav_items = self._scraper_helper.get_children_response(res.equipmentRefId)
                 # print(f'Nav Items scraped : {len(nav_items)}')
@@ -50,23 +44,21 @@ class JohnDeereScraper:
                 try:
                     parts_response = self._scraper_helper.get_parts_response(ref_id=ref_id, page_id=item.id)
                 except Exception as ex:
-                    print(f'Exception at parts response : {ex}')
-                    logger.error(f'Parts Error at sgl : {ex}')
-                    logger.error(json.dumps(sgl_codes, indent=4))
+                    logger.error(f'Exception at parts response : {ex}')
                     continue
                 if parts_response:
                     records = self._create_records(parts_response=parts_response, sgl_codes=sgl_codes)
                     # print(f'Sending records to SQL: {len(records)}')
                     self.sqlHelper.insert_many_records(records=records)
                 else:
-                    print('Error : No parts found')
+                    logger.error('Error : No parts found')
             else:
                 try:
                     nav_items = self._scraper_helper.get_children_response(ref_id, level_index=item.levelIndex, serialized_path=item.serializedPath)
                     # print(f'Nav Items scraped : {len(nav_items)}')
                     self._scrape_parts(ref_id=ref_id, nav_items=nav_items, sgl_codes=sgl_codes)
                 except Exception as ex:
-                    print(f'Exception in recursion at else part : {ex}')
+                    logger.error(f'Exception in recursion at else part : {ex}')
 
     def _create_records(self, parts_response: GetPartsResponseModel, sgl_codes: list[str]) -> list[dict]:
         records = []

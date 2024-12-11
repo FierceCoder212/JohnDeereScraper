@@ -1,3 +1,4 @@
+import logging
 import time
 from typing import Optional
 
@@ -6,6 +7,8 @@ import requests
 from Models.GetChildrenResponseModel import GetChildrenResponseModel, NavItem
 from Models.GetPartsResponseModel import GetPartsResponseModel
 from Models.SearchResultsResponseModel import SearchResultsResponseModel, SearchResult
+
+logger = logging.getLogger(__name__)
 
 
 class JohnDeereScraperHelper:
@@ -74,13 +77,13 @@ class JohnDeereScraperHelper:
             if response.status_code == 200:
                 return SearchResultsResponseModel(**response.json()).searchResults
             else:
-                print(f'Error search response : {response.status_code}')
-                print(f'Waiting for {wait_count}sec.')
+                logger.error(f'Error search response : {response.status_code}')
+                logger.info(f'Waiting for {wait_count}sec.')
                 time.sleep(wait_count)
                 return self.get_search_results(pc_model=pc_model, wait_count=wait_count + 1)
         except Exception as ex:
-            print(f'Error search response : {ex}')
-            print(f'Waiting for {wait_count}sec.')
+            logger.error(f'Error search response : {ex}')
+            logger.info(f'Waiting for {wait_count}sec.')
             time.sleep(wait_count)
             return self.get_search_results(pc_model=pc_model, wait_count=wait_count + 1)
 
@@ -91,12 +94,12 @@ class JohnDeereScraperHelper:
             if response.status_code == 200:
                 return SearchResultsResponseModel(**response.json())
             else:
-                print(f'Error search response : {response.status_code}')
-                print(f'Waiting for {wait_count}sec.')
+                logger.error(f'Error search response : {response.status_code}')
+                logger.info(f'Waiting for {wait_count}sec.')
                 time.sleep(wait_count)
                 return self.get_search_results_exception_messages(pc_model=pc_model, wait_count=wait_count + 1)
         except Exception as ex:
-            print(f'Error search response : {ex}')
+            logger.error(f'Error search response : {ex}')
             time.sleep(wait_count)
             return self.get_search_results_exception_messages(pc_model=pc_model, wait_count=wait_count + 1)
 
@@ -110,13 +113,13 @@ class JohnDeereScraperHelper:
             if response.status_code == 200:
                 return GetChildrenResponseModel(**response.json()).navItems
             else:
-                print(f'Error children response : {response.status_code}')
-                print(f'Waiting for {wait_count}sec.')
+                logger.error(f'Error children response : {response.status_code}')
+                logger.info(f'Waiting for {wait_count}sec.')
                 time.sleep(wait_count)
                 return self.get_children_response(ref_id=ref_id, level_index=level_index, serialized_path=serialized_path, wait_count=wait_count + 1)
         except Exception as ex:
-            print(f'Error children response : {ex}')
-            print(f'Waiting for {wait_count}sec.')
+            logger.error(f'Error children response : {ex}')
+            logger.info(f'Waiting for {wait_count}sec.')
             time.sleep(wait_count)
             return self.get_children_response(ref_id=ref_id, level_index=level_index, serialized_path=serialized_path, wait_count=wait_count + 1)
 
@@ -134,15 +137,15 @@ class JohnDeereScraperHelper:
 
                     return GetPartsResponseModel(**response_json)
                 except Exception as ex:
-                    print(f'Error parts response : {ex}')
+                    logger.error(f'Error parts response : {ex}')
                     return None
             else:
-                print(f'Error parts response : {response.status_code}')
-                print(f'Waiting for {wait_count}sec.')
+                logger.error(f'Error parts response : {response.status_code}')
+                logger.info(f'Waiting for {wait_count}sec.')
                 time.sleep(wait_count)
                 return self.get_parts_response(ref_id=ref_id, page_id=page_id, wait_count=wait_count + 1)
         except Exception as ex:
-            print(f'Error parts response : {ex}')
-            print(f'Waiting for {wait_count}sec.')
+            logger.error(f'Error parts response : {ex}')
+            logger.info(f'Waiting for {wait_count}sec.')
             time.sleep(wait_count)
             return self.get_parts_response(ref_id=ref_id, page_id=page_id, wait_count=wait_count + 1)
