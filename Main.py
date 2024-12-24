@@ -25,7 +25,7 @@ def start_scraper(chunk: dict):
     scraper_helper.start_scraping()
 
 
-num_threads = 10
+num_threads = 30
 data_items = list(data.items())
 chunk_size = math.ceil(len(data_items) / num_threads)
 chunks = [dict(data_items[i:i + chunk_size]) for i in range(0, len(data_items), chunk_size)]
