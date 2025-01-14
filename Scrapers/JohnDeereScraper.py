@@ -55,7 +55,7 @@ class JohnDeereScraper:
             else:
                 try:
                     nav_items = self._scraper_helper.get_children_response(ref_id, level_index=item.levelIndex, serialized_path=item.serializedPath)
-                    # print(f'Nav Items scraped : {len(nav_items)}')
+                    print(f'Nav Items scraped : {len(nav_items)}')
                     self._scrape_parts(ref_id=ref_id, nav_items=nav_items, sgl_codes=sgl_codes)
                 except Exception as ex:
                     logger.error(f'Exception in recursion at else part : {ex}')
